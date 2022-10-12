@@ -17,7 +17,10 @@ services:
       - ./docker-config/nginx/conf:/etc/nginx/conf.d
       - ./docker-config/nginx/logs:/var/log/nginx
     networks:
-      - programming_network
+      programming_network:
+        aliases: 
+          - pocket-api.test
+          - pocket-id-server.test
 
   mysql5729:
     image: mysql:5.7.29
@@ -40,6 +43,7 @@ services:
     container_name: postgres14
     volumes:
       - ./docker-config/postgres144:/var/lib/postgresql/data
+    restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
@@ -76,4 +80,28 @@ services:
     ports:
       - "9081:9000"
     networks:
-      - programming_network
+      programming_network:
+        aliases: 
+          - pocket-api.test
+          - pocket-id-server.test
+
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    ports:
+      - "2181:2181"
+    volumes:
+      - "./docker-config/zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    image: docker.io/bitnami/kafka:3.2
+    ports:
+      - "9092:9092"
+    volumes:
+      - "./docker-config/kafka_data:/bitnami"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
