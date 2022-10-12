@@ -1,0 +1,2 @@
+docker-config/zookeeper_data/*
+docker-config/kafka_data/*
